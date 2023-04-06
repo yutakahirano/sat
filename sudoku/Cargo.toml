@@ -1,0 +1,6 @@
+[package]
+name = "sudoku"
+version = "0.1.0"
+
+[dependencies]
+kissat = "0.1.0"
