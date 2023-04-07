@@ -22,6 +22,20 @@ fn print_solution(solution: &kissat::Solution, board: &Board) {
     }
 }
 
+// Assigns a number to a cell.
+// `number` must be between 0 and 8 (both inclusive).
+fn assign(solver: &mut kissat::Solver, board: &Board, row: usize, column: usize, number: i32) {
+    assert!(number >= 0);
+    assert!(number <= 8);
+    for bit in 0..BITS {
+        if number & (1 << (BITS - bit - 1)) != 0 {
+            solver.add1(board[row][column][bit]);
+        } else {
+            solver.add1(!board[row][column][bit]);
+        }
+    }
+}
+
 // Returns a variable that is true iff the two cells are not equal.
 fn neq(
     solver: &mut kissat::Solver,
@@ -91,9 +105,16 @@ fn main() {
                 continue;
             }
             for row_a in row_base..(row_base + 3) {
-                for row_b in (row_a + 1)..(row_base + 3) {
+                for row_b in row_base..(row_base + 3) {
                     for column_a in column_base..(column_base + 3) {
-                        for column_b in (column_a + 1)..(column_base + 3) {
+                        for column_b in (column_base + 1)..(column_base + 3) {
+                            // When (`row_a`, `column_a`) equals to (`row_b`, `column_b`),
+                            // then we shouldn't check the inequality (it always fails).
+                            // When (`row_a`, `column_a`) > (`row_b`, `column_b`), then
+                            // we don't need to check the inequality (it's already been checked).
+                            if row_a > row_b || (row_a == row_b && column_a >= column_b) {
+                                continue;
+                            }
                             let ne = neq(&mut solver, &board, row_a, column_a, row_b, column_b);
                             solver.add1(ne);
                         }
@@ -102,6 +123,9 @@ fn main() {
             }
         }
     }
+
+    assign(&mut solver, &board, 0, 0, 0);
+    assign(&mut solver, &board, 0, 1, 3);
 
     // Print the cells if there is a solution.
     match solver.sat() {
