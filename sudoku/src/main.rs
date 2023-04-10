@@ -107,7 +107,7 @@ fn main() {
             for row_a in row_base..(row_base + 3) {
                 for row_b in row_base..(row_base + 3) {
                     for column_a in column_base..(column_base + 3) {
-                        for column_b in (column_base + 1)..(column_base + 3) {
+                        for column_b in column_base..(column_base + 3) {
                             // When (`row_a`, `column_a`) equals to (`row_b`, `column_b`),
                             // then we shouldn't check the inequality (it always fails).
                             // When (`row_a`, `column_a`) > (`row_b`, `column_b`), then
